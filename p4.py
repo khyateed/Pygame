@@ -23,9 +23,7 @@ class Player(Sprite):
 
         self.rect.center = (x_pos,y_pos)
 
-    def hit(self, target):
-        return self.rect.colliderect(target)
-
+    
 class Ice(Player):
     def __init__(self, row, col):
         Sprite.__init__(self)
@@ -33,6 +31,19 @@ class Ice(Player):
         self.image = pygame.transform.scale(ice, (80,80))
         self.rect = self.image.get_rect()
         self.rect.center = (row, col)
+class Ball(Sprite):
+     def __init__(self):
+        Sprite.__init__(self)
+        p =pygame.image.load("ball.png")
+        self.image = pygame.transform.scale(p, (50,50))
+        self.rect = self.image.get_rect()
+     def launch(self):
+        randX = randint(0, 900)
+        randY = randint(0, 700)
+        self.rect.center = (randX,randY)
+     def hit(self, target):
+        return self.rect.colliderect(target)
+
 
 ######################################################################
 init()
@@ -44,28 +55,28 @@ display.set_caption('Climb through the Ice')
 mouse.set_visible(False)
 
 f = font.Font(None, 25)
-
+DELAY = 1000;
 # create the mole and shovel using the constructors
 player = Player()
+ball = Ball()
 ice = []
 rows = range(300,850,100)
 cols = range(100,650,100)
 for i in rows:
     for j in cols:
         ice.append(Ice(i, j))
-        
-        
-        pygame.display.update()
+
 
 
 # creates a group of sprites so all can be updated at once aka every time i mention sprites, i'm talking about gold and shovel. 
-sprites = RenderPlain(player, ice)
+sprites = RenderPlain(player, ice,ball)
 
 
 
 x_pos=30
 y_pos=30
 hits=0
+time.set_timer(USEREVENT + 1, DELAY)
 # loop until user quits
 while True:
     e = event.poll()
@@ -84,10 +95,15 @@ while True:
             y_pos -= 20
         if e.key == K_DOWN:
             y_pos += 20
+            
         player.move(x_pos, y_pos)
         
+       
+        if e.key == K_SPACE: 
+            ball.launch()
+
         for x in ice:
-            if player.hit(x):
+            if ball.hit(x):
                 x.kill()
                 x.move(0,0)
                 mixer.Sound("hit.wav").play()
