@@ -31,21 +31,18 @@ class Ice(Player):
         self.image = pygame.transform.scale(ice, (80,80))
         self.rect = self.image.get_rect()
         self.rect.center = (row, col)
-class Ball(Sprite):
+class Ball(Player):
      def __init__(self):
         Sprite.__init__(self)
         p =pygame.image.load("ball.png")
         self.image = pygame.transform.scale(p, (50,50))
         self.rect = self.image.get_rect()
-     def launch(self):
-        randX = randint(0, 900)
-        randY = randint(0, 700)
-        self.rect.center = (randX,randY)
+
      def hit(self, target):
         return self.rect.colliderect(target)
 
 
-######################################################################
+#######################################################################################
 init()
 
 screen = display.set_mode((900, 700))
@@ -71,10 +68,9 @@ for i in rows:
 # creates a group of sprites so all can be updated at once aka every time i mention sprites, i'm talking about gold and shovel. 
 sprites = RenderPlain(player, ice,ball)
 
-
-
 x_pos=30
 y_pos=30
+rep=0
 hits=0
 time.set_timer(USEREVENT + 1, DELAY)
 # loop until user quits
@@ -100,17 +96,27 @@ while True:
         
        
         if e.key == K_SPACE: 
-            ball.launch()
-
-        for x in ice:
-            if ball.hit(x):
-                x.kill()
-                x.move(0,0)
-                mixer.Sound("hit.wav").play()
-                hits+=1
+            x = x_pos
             
 
-        
+            while rep != 9:
+                ball.move(x, y_pos)
+                sprites.update()
+                sprites.draw(screen)
+                pygame.display.update()
+                x+=20 
+                for i in ice:
+                    if ball.hit(i): 
+                        rep = 9
+                        break
+            i.kill()
+            ball.move(x_pos,y_pos)
+            i.move(0,0)
+            mixer.Sound("hit.wav").play()
+            hits+=1
+            rep = 0       
+                
+                        
 
 
     # refill background color so that we can paint sprites in new locations
