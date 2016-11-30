@@ -104,13 +104,14 @@ while True:
                 sprites.update()
                 sprites.draw(screen)
                 pygame.display.update()
+                screen.fill(bgcolor)
                 x+=20 
                 for i in ice:
                     if ball.hit(i): 
                         rep = 9
                         break
             i.kill()
-            ball.move(x_pos,y_pos)
+            ball.move(0,0)
             i.move(0,0)
             mixer.Sound("hit.wav").play()
             hits+=1
