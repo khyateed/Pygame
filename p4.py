@@ -38,7 +38,7 @@ class Ball(Player):
      def __init__(self):
         Sprite.__init__(self)
         p =pygame.image.load("ball.png")
-        self.image = pygame.transform.scale(p, (50,50))
+        self.image = pygame.transform.scale(p, (40,40))
         self.rect = self.image.get_rect(center=(-20,-20))
 
      def hit(self, target):
@@ -47,7 +47,8 @@ class Ball(Player):
 class Gold(Sprite):
     def __init__(self):
         Sprite.__init__(self)
-        self.image = image.load("gold.bmp").convert_alpha()
+        gold = image.load("gold.bmp").convert_alpha()
+        self.image = pygame.transform.scale(gold, (30,30))
         self.rect = self.image.get_rect(center=(-20,-20))
 
     # move gold to a new random location
@@ -61,7 +62,7 @@ class Gold(Sprite):
 
 
 
-class Bullet(Sprite):
+class Bullet(Ball):
 
     def __init__(self, xpos, ypos, hspeed, vspeed):
         super(Bullet, self).__init__()
@@ -119,12 +120,15 @@ ball = Ball()
 ice = []
 gold=Gold()
 
-bullets = pygame.sprite.Group()
+bullets =[]
+bullet = random_bullet(randint(10,15))
+bullets.append(bullet)
+
 
 
 screen_rect = screen.get_rect()
-rows = range(300,850,300)
-cols = range(100,650,300)
+rows = range(300,850,100)
+cols = range(100,650,100)
 for i in rows:
     for j in cols:
         ice.append(Ice(i, j))
@@ -141,17 +145,15 @@ hits=0
 time.set_timer(USEREVENT + 1, DELAY)
 # loop until user quits
 while True:
-
-    e = event.poll()
-    if e.type == QUIT:
-        quit()
-        break
-
-    elif e.type == USEREVENT + 1: # TIME has passed
-        gold.move()
-        
-    elif e.type == KEYDOWN: 
     
+    e = event.poll()
+    
+
+    if e.type == USEREVENT + 1: # TIME has passed
+        gold.move()
+    elif e.type == KEYDOWN: 
+        if e.key == K_q:
+            quit()
       
         if e.key == K_UP:
             y_pos -= 20
@@ -163,9 +165,9 @@ while True:
        
         if e.key == K_SPACE: 
             x = x_pos
-            
-
+           
             while repeat == True:
+                 
                 ball.move(x, y_pos)
                 sprites.update()
                 sprites.draw(screen)
@@ -186,7 +188,6 @@ while True:
                 for i in ice:
                     if ball.hit(i):
                         
-
                         repeat = False
                         ice.remove(i)
                         
@@ -201,9 +202,13 @@ while True:
                     
             
             repeat = True
-            time.set_timer(USEREVENT + 1, DELAY)      
-                
-    # elif e.type == USEREVENT +1:
+            time.set_timer(USEREVENT + 1, DELAY)
+
+    for bullet in bullets:           
+        if bullet.hit(player):
+            bullet.kill()
+            bullet.move(-20,-20)
+            print('oops')
 
     if len(ice)==0:
         break
