@@ -115,8 +115,8 @@ def draw_background(background_img):
 
 def draw_ice():
     ice = []
-    rows = range(300,850,300)
-    cols = range(100,650,300)
+    rows = range(300,850,100)
+    cols = range(100,650,100)
     for i in rows:
       for j in cols:
         ice.append(Ice(i, j))
