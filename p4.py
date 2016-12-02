@@ -1,18 +1,16 @@
 
-# Dig for gold
-# Based on Whack-a-mole game using pygame by Kimberly Todd
-
 from pygame import *
 from pygame.sprite import *
 from random import *
 import math
+import sys
 
 B_WIDTH = 20
 B_HEIGHT = 60
 bgcolor = (40, 40, 60) 
        
 
-   
+####################### Classes #################################
 
 class Player(Sprite):
     def __init__(self):
@@ -32,7 +30,6 @@ class Gold(Sprite):
         self.image = pygame.transform.scale(gold, (30,30))
         self.rect = self.image.get_rect(center=(-20,-20))
 
-    # move gold to a new random location
     def move(self):
         randX = randint(0, 900)
         randY = randint(0, 500)
@@ -41,7 +38,7 @@ class Gold(Sprite):
 class Ice(Player):
     def __init__(self, row, col):
         Sprite.__init__(self)
-        ice = image.load('ice.png').convert()
+        ice = image.load('ice.bmp').convert_alpha()
         self.image = pygame.transform.scale(ice, (80,80))
         self.rect = self.image.get_rect(center=(row,col))
 
@@ -96,7 +93,7 @@ class Lives(Sprite):
     def move(self, x_pos, y_pos):
         self.rect.center = (x_pos,y_pos)   
 
-  
+############################ Functions #########################  
 def random_bullet(speed):
     
     return Bullet(randint(0, WIDTH), 0, 0, speed)
@@ -111,7 +108,6 @@ def draw_background(background_img):
                                              j * background_rect_height,
                                              background_rect_width,
                                              background_rect_height))
-
 
 def draw_ice():
     ice = []
@@ -143,6 +139,7 @@ def win(hits):
         if e.type == KEYDOWN: 
             if e.key == K_q:
                 quit()
+                sys.exit()
         
 
 def lose(hits):
@@ -155,16 +152,16 @@ def lose(hits):
         screen.blit(t, (320, 0))
         t = f.render("Press q to quit", False, (255,255,255))
         screen.blit(t, (400, 400))
-
         pygame.display.update()
         e = event.poll()
         if e.type == KEYDOWN: 
             if e.key == K_q:
-                quit()    
+                quit()
+                sys.exit()   
 
 #################################### Main ###################################################
 init()
-
+print("INSTRUCTIONS:\nSpace bar to shoot a snowball\nRight/Left to dodge icicles\nShoot gold to win extra points")
 
 WIDTH=900
 HEIGHT=700
@@ -174,7 +171,7 @@ background_img = background_img = pygame.image.load('back.png')
 f = font.Font(None, 40)
 DELAY = 3000;
 
-################ Constructors #################
+############################## Constructors #########################
 
 screen_rect = screen.get_rect()
 ice=draw_ice()
@@ -182,14 +179,9 @@ lives=draw_lives()
 player = Player()
 ball = Ball()
 gold=Gold()
-bullet = random_bullet(randint(10,15))
-
-
+bullet = random_bullet(randint(20,25))
 
 sprites = RenderPlain(player, ice, ball, gold, bullet, lives)
-
-
-
 
 x_pos=450
 y_pos=650
@@ -198,8 +190,7 @@ hits=0
 time.set_timer(USEREVENT + 1, DELAY)
 
 
-
-#################### Game Loop ###########################
+############################ Game Loop ###########################
 while True:
     
     e = event.poll()
@@ -208,6 +199,7 @@ while True:
     elif e.type == KEYDOWN: 
         if e.key == K_q:
             quit()
+            sys.exit()
         if e.key == K_RIGHT:
             x_pos += 25
         if e.key == K_LEFT:
@@ -261,19 +253,17 @@ while True:
             mixer.Sound("bullet.wav").play()
             bullet.move(-20,-20)
 
-  
-            
             
     if len(lives)==0:
+        mixer.Sound("sad.wav").play()
         lose(hits)
     if len(ice)==0:
+        mixer.Sound("win.wav").play()
         win(hits)
 
-    # refill background 
     draw_background(background_img)
     t = f.render("Score: " + str(hits), False, (255,255,255))
     screen.blit(t, (320, 0))
-    # update and redraw sprites
     sprites.update()
     sprites.draw(screen)
     pygame.display.update()
