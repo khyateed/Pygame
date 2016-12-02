@@ -115,8 +115,8 @@ def draw_background(background_img):
 
 def draw_ice():
     ice = []
-    rows = range(300,850,100)
-    cols = range(100,650,100)
+    rows = range(100,900,100)
+    cols = range(100,500,100)
     for i in rows:
       for j in cols:
         ice.append(Ice(i, j))
@@ -148,7 +148,7 @@ def win(hits):
 def lose(hits):
     while True:
         draw_background(background_img)
-        t = font.Font(None, 150).render("You lost ", False, (255,0,0))
+        t = font.Font(None, 150).render("You lose ", False, (255,0,0))
         screen.blit(t, (200, 200))
 
         t = f.render("Final Score: " + str(hits), False, (255,255,255))
@@ -169,7 +169,7 @@ init()
 WIDTH=900
 HEIGHT=700
 screen = display.set_mode((WIDTH, HEIGHT))
-display.set_caption('Climb through the Ice')
+display.set_caption('Destroy the ice, dodge the icicles, collect gold')
 background_img = background_img = pygame.image.load('back.png')
 f = font.Font(None, 40)
 DELAY = 3000;
