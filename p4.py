@@ -7,8 +7,8 @@ from pygame.sprite import *
 from random import *
 import math
 
-B_WIDTH = 10
-B_HEIGHT = 13
+B_WIDTH = 20
+B_HEIGHT = 60
 bgcolor = (40, 40, 60) 
        
 
@@ -19,7 +19,7 @@ class Player(Sprite):
         Sprite.__init__(self)
         p =pygame.image.load("player.png")
         self.image = pygame.transform.scale(p, (75,75))
-        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect(center=(450,650))
 
   
     def move(self, x_pos, y_pos):
@@ -34,8 +34,8 @@ class Gold(Sprite):
 
     # move gold to a new random location
     def move(self):
-        randX = randint(300, 900)
-        randY = randint(0, 700)
+        randX = randint(0, 900)
+        randY = randint(0, 500)
         self.rect.center = (randX,randY)
 
 class Ice(Player):
@@ -68,13 +68,13 @@ class Bullet(Ball):
         self.hspeed = hspeed
         self.vspeed = vspeed
 
-        self.set_direction()
+        #self.set_direction()
 
     def update(self):
         self.rect.x += self.hspeed
         self.rect.y += self.vspeed
         if self.collide():
-            self.move(900, randint(0,700))
+            self.move(randint(100,800),0)
 
     def collide(self):
         if self.rect.x < 0 - B_WIDTH or self.rect.x > WIDTH:
@@ -83,11 +83,23 @@ class Bullet(Ball):
             return True
 
     def set_direction(self):
-        self.image = pygame.transform.rotate(self.image, 270)
-        
+        self.image = pygame.transform.rotate(self.image, 180)
+
+class Lives(Sprite):
+    def __init__(self,col):
+        Sprite.__init__(self)
+        p =pygame.image.load("heart.png")
+        self.image = pygame.transform.scale(p, (40,40))
+        self.rect = self.image.get_rect(center=(col,20))
+
+  
+    def move(self, x_pos, y_pos):
+        self.rect.center = (x_pos,y_pos)   
+
+  
 def random_bullet(speed):
     
-    return Bullet(WIDTH, randint(0, HEIGHT), -speed, 0)
+    return Bullet(randint(0, WIDTH), 0, 0, speed)
 
 def draw_background(background_img):
     background_rect = background_img.get_rect()
@@ -109,7 +121,12 @@ def draw_ice():
       for j in cols:
         ice.append(Ice(i, j))
     return ice
-
+def draw_lives():
+    lives =[]
+    cols = range(50,150,40)
+    for i in cols:
+        lives.append(Lives(i))
+    return lives
 def win(hits):
     while True:
         draw_background(background_img)
@@ -161,21 +178,21 @@ DELAY = 3000;
 
 screen_rect = screen.get_rect()
 ice=draw_ice()
+lives=draw_lives()
 player = Player()
 ball = Ball()
 gold=Gold()
-bullets =[]
 bullet = random_bullet(randint(10,15))
-bullets.append(bullet)
-
-
-sprites = RenderPlain(player, ice, ball, gold, bullets)
 
 
 
+sprites = RenderPlain(player, ice, ball, gold, bullet, lives)
 
-x_pos=30
-y_pos=30
+
+
+
+x_pos=450
+y_pos=650
 repeat=True
 hits=0
 time.set_timer(USEREVENT + 1, DELAY)
@@ -191,25 +208,25 @@ while True:
     elif e.type == KEYDOWN: 
         if e.key == K_q:
             quit()
-        if e.key == K_UP:
-            y_pos -= 20
-        if e.key == K_DOWN:
-            y_pos += 20
+        if e.key == K_RIGHT:
+            x_pos += 25
+        if e.key == K_LEFT:
+            x_pos -= 25
             
         player.move(x_pos, y_pos)
         
         if e.key == K_SPACE: 
-            x = x_pos   
+            y = y_pos   
             
             while repeat == True:   
                 draw_background(background_img)
 
-                ball.move(x, y_pos)
+                ball.move(x_pos, y)
                 sprites.update()
                 sprites.draw(screen)
                 pygame.display.update()
                 screen.fill(bgcolor)
-                x+=20
+                y-=25
                 
                 if ball.hit(gold):
                     mixer.Sound("cha-ching.wav").play()
@@ -218,7 +235,7 @@ while True:
                     t = f.render("Score: " + str(hits), False, (255,255,255))
                     screen.blit(t, (320, 0))
 
-                if x > screen_rect.right:
+                if y < screen_rect.top:
                     mixer.Sound("splash.wav").play()
                     ball.move(-15,-15)
                     break
@@ -232,18 +249,23 @@ while True:
                         mixer.Sound("hit.wav").play()
                         hits+=1
                         break
-                
             repeat = True
             time.set_timer(USEREVENT + 1, DELAY)
 
-    for bullet in bullets:           
-        if bullet.hit(player):
-            mixer.Sound("bullet.wav").play()
-            bullet.kill()
-            bullet.move(-20,-20)
-            lose(hits)
-            
 
+    for l in lives:
+        if bullet.hit(player):
+            bullet.move(-20,-20)
+            l.kill()
+            lives.remove(l)
+            mixer.Sound("bullet.wav").play()
+            bullet.move(-20,-20)
+
+  
+            
+            
+    if len(lives)==0:
+        lose(hits)
     if len(ice)==0:
         win(hits)
 
